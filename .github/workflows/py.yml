@@ -1,4 +1,4 @@
-name: Build CPython 3.13.7 for Alpine armv7l (Soft-Float) to /mnt/us
+name: Build CPython 3.12.x for Alpine armv7l (Soft-Float) to /mnt/us
 
 on:
   workflow_dispatch: # 允许手动触发工作流
@@ -16,17 +16,18 @@ jobs:
         with:
           platforms: arm # 启用 ARM 平台支持，包括 armv7l
 
-      - name: Download CPython 3.13.7 Source
+      - name: Download CPython 3.12.0 Source # 注意：这里使用3.12.0作为示例，您可以替换为3.12.x的任何具体版本
         run: |
-          wget https://www.python.org/ftp/python/3.13.7/Python-3.13.7.tgz
-          tar -xf Python-3.13.7.tgz
-          mv Python-3.13.7 cpython-source
+          wget https://www.python.org/ftp/python/3.12.0/Python-3.12.0.tgz
+          tar -xf Python-3.12.0.tgz
+          mv Python-3.12.0 cpython-source
 
       - name: Build CPython in Alpine ARMv7l Docker Container
         run: |
           # 运行一个 arm32v7/alpine 容器，并将当前目录挂载到容器的 /workspace
           # 在容器内执行编译和安装步骤
-          docker run --rm \
+          # 关键更改：添加 --platform linux/arm/v7
+          docker run --rm --platform linux/arm/v7 \
             -v "$(pwd):/workspace" \
             arm32v7/alpine:latest /bin/sh -c "
             apk update && \
@@ -63,11 +64,11 @@ jobs:
             # 打包结果
             # 注意：cd /mnt/us 确保打包的是安装目录的内容
             cd /mnt/us && \
-            tar -czvf /workspace/cpython-3.13.7-alpine-armv7l-softfloat-mnt-us.tar.gz .
+            tar -czvf /workspace/cpython-3.12.0-alpine-armv7l-softfloat-mnt-us.tar.gz .
             "
 
       - name: Upload CPython Package as Artifact
         uses: actions/upload-artifact@v4
         with:
-          name: cpython-3.13.7-alpine-armv7l-softfloat-mnt-us
-          path: cpython-3.13.7-alpine-armv7l-softfloat-mnt-us.tar.gz
+          name: cpython-3.12.0-alpine-armv7l-softfloat-mnt-us
+          path: cpython-3.12.0-alpine-armv7l-softfloat-mnt-us.tar.gz
