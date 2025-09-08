@@ -16,7 +16,7 @@ jobs:
         with:
           platforms: arm # 启用 ARM 平台支持，包括 armv7l
 
-      - name: Download CPython 3.12.0 Source # 注意：这里使用3.12.0作为示例，您可以替换为3.12.x的任何具体版本
+      - name: Download CPython 3.12.0 Source
         run: |
           wget https://www.python.org/ftp/python/3.12.0/Python-3.12.0.tgz
           tar -xf Python-3.12.0.tgz
@@ -44,7 +44,8 @@ jobs:
               libffi-dev \
               expat-dev \
               tar \
-              wget && \
+              wget \
+              python3 && \ # <-- 添加 python3
             
             cd /workspace/cpython-source && \
             
@@ -53,7 +54,8 @@ jobs:
             # --enable-optimizations: 启用优化编译
             # --with-ensurepip=install: 确保安装 pip
             # 注意：--host 参数已更改为 armv7l-alpine-linux-musleabi 以支持软浮点
-            ./configure --host=armv7l-alpine-linux-musleabi --build=x86_64-linux-gnu --prefix=/mnt/us --enable-optimizations --with-ensurepip=install && \
+            # 关键更改：移除 --build 参数
+            ./configure --host=armv7l-alpine-linux-musleabi --prefix=/mnt/us --enable-optimizations --with-ensurepip=install && \
             
             # 编译
             make -j$(nproc) && \
